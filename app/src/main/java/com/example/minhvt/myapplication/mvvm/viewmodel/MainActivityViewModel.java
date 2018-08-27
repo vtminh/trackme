@@ -6,7 +6,10 @@ import android.arch.lifecycle.ViewModel;
 
 
 import com.example.minhvt.myapplication.data.Session;
+import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +28,12 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void insertForTest(){
-        mRepo.insertSession(new Session(System.currentTimeMillis(),2f,3f, new Date()));
+        ArrayList<LatLng> route = new ArrayList<>();
+        route.add(new LatLng(1,1));
+        route.add(new LatLng(1,1.001));
+        route.add(new LatLng(1,1.002));
+
+        mRepo.insertSession(new Session(System.currentTimeMillis(),2f,3f, new Date(), route));
     }
 
     public LiveData<List<Session>> getSessions() {
