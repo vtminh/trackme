@@ -20,6 +20,8 @@ import android.content.Context;
 
 import com.example.minhvt.myapplication.data.SessionDb;
 import com.example.minhvt.myapplication.mvvm.viewmodel.MainViewModelFactory;
+import com.example.minhvt.myapplication.mvvm.viewmodel.MapListViewModelFactory;
+import com.example.minhvt.myapplication.mvvm.viewmodel.MapsViewModelFactory;
 import com.example.minhvt.myapplication.mvvm.viewmodel.SessionRepository;
 
 
@@ -45,6 +47,16 @@ public class InjectorUtils {
     public static MainViewModelFactory provideMainActivityViewModelFactory(Context context) {
         SessionRepository repository = provideRepository(context.getApplicationContext());
         return new MainViewModelFactory(repository);
+    }
+
+    public static MapsViewModelFactory provideMapsActivityViewModelFactory(Context context) {
+        SessionRepository repository = provideRepository(context.getApplicationContext());
+        return new MapsViewModelFactory(repository);
+    }
+
+    public static MapListViewModelFactory provideMapListViewModelFactory(Context context) {
+        SessionRepository repository = provideRepository(context.getApplicationContext());
+        return new MapListViewModelFactory(repository);
     }
 
 }

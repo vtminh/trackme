@@ -30,17 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        mViewModel.insertForTest()
-
-
-        Handler().postDelayed(object : Runnable{
-            override fun run() {
-                mViewModel.insertForTest()
-            }
-
-        }, 2000)
-
-
     }
 
     fun bindDataToUI(sessions: MutableList<Session>?) {

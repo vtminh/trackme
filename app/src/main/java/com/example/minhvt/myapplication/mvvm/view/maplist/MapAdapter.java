@@ -1,5 +1,6 @@
 package com.example.minhvt.myapplication.mvvm.view.maplist;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.minhvt.myapplication.R;
+import com.example.minhvt.myapplication.data.Session;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -16,14 +18,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.android.gms.maps.model.PolygonOptions;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
 class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
 
 
-    private NamedLocation[] namedLocations;
+    private List<Session> mSessions = new ArrayList<>();
 
-    public MapAdapter(NamedLocation[] locations) {
+    public MapAdapter() {
         super();
-        namedLocations = locations;
+    }
+
+    public void replaceData(List<Session> sessions){
+        this.mSessions = sessions;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -39,15 +51,12 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (holder == null) {
-            return;
-        }
         holder.bindView(position);
     }
 
     @Override
     public int getItemCount() {
-        return namedLocations.length;
+        return mSessions.size();
     }
 
     /**
@@ -62,15 +71,17 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback {
 
         MapView mapView;
-        TextView title;
+        TextView tvDistance;
         GoogleMap map;
         View layout;
+
+        Session mSession;
 
         private ViewHolder(View itemView) {
             super(itemView);
             layout = itemView;
             mapView = layout.findViewById(R.id.lite_listrow_map);
-            title = layout.findViewById(R.id.lite_listrow_text);
+            tvDistance = layout.findViewById(R.id.tvDistance);
             if (mapView != null) {
                 // Initialise the MapView
                 mapView.onCreate(null);
@@ -86,34 +97,42 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             setMapLocation();
         }
 
+        private void setSession(Session session){
+            mSession = session;
+            setMapLocation();
+        }
+
         /**
          * Displays a {@link NamedLocation} on a
          * {@link com.google.android.gms.maps.GoogleMap}.
          * Adds a marker and centers the camera on the NamedLocation with the normal map type.
          */
         private void setMapLocation() {
-            if (map == null) return;
-
-            NamedLocation data = (NamedLocation) mapView.getTag();
-            if (data == null) return;
+            if (map == null || mSession == null) return;
 
             // Add a marker for this item and set the camera
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(data.location, 13f));
-            map.addMarker(new MarkerOptions().position(data.location));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(mSession.mRoute.get(0), 20f));
+            map.addMarker(new MarkerOptions().position(mSession.mRoute.get(0)));
 
             // Set the map type back to normal.
             map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+            map.addPolygon(new PolygonOptions()
+                    .addAll(mSession.mRoute)
+                    .strokeColor(Color.YELLOW)
+                    .strokeWidth(10f)
+                    .fillColor(Color.YELLOW)
+            );
         }
 
         private void bindView(int pos) {
-            NamedLocation item = namedLocations[pos];
+            Session item = mSessions.get(pos);
             // Store a reference of the ViewHolder object in the layout.
             layout.setTag(this);
             // Store a reference to the item in the mapView's tag. We use it to get the
             // coordinate of a location, when setting the map location.
-            mapView.setTag(item);
-            setMapLocation();
-            title.setText(item.name);
+            setSession(item);
+            //title.setText(item.name);
         }
     }
 }

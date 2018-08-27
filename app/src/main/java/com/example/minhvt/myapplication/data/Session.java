@@ -14,13 +14,13 @@ import java.util.List;
 @Entity(tableName = "session")
 public class Session {
     @PrimaryKey(autoGenerate = true)
-    long mId;
-    Date mDate;
-    float mDistance;
-    float mSpeed;
+    public long mId;
+    public Date mDate;
+    public float mDistance;
+    public float mSpeed;
 
     @TypeConverters(RouteConverter.class)
-    List<LatLng> mRoute;
+    public List<LatLng> mRoute;
     public Session(long id, float distance, float speed, Date date, List<LatLng> route){
         this.mId = id;
         this.mDistance = distance;

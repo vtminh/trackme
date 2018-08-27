@@ -29,15 +29,16 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".mvvm.view.trackroute.MapsActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name=".mvvm.view.maplist.LiteListDemoActivity"
             android:label="@string/lite_list_demo_label">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
 

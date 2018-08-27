@@ -16,16 +16,13 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="5dp">
+    android:background="@color/colorBackground">
 
-    <TextView
-        android:id="@+id/lite_listrow_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 
     <!-- MapView in lite mode. Note that it needs to be initialised
          programmatically before it can be used. -->
@@ -35,5 +32,38 @@
         android:layout_height="150dp"
         map:liteMode="true"
         map:mapType="none" />
+
+    <LinearLayout
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:text="10 km"
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:text="20 km/h"
+            android:id="@+id/tvSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:text="10:10:20"
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>
