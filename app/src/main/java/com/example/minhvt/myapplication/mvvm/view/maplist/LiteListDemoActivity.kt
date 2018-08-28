@@ -128,12 +128,7 @@ class LiteListDemoActivity : AppCompatActivity() {
 
         val factory = InjectorUtils.provideMapListViewModelFactory(this)
         mViewModel = ViewModelProviders.of(this, factory).get(MapListViewModel::class.java);
-        mViewModel.sessions.observe(this, object : Observer<MutableList<Session>> {
-            override fun onChanged(t: MutableList<Session>?) {
-                adapter.replaceData(t)
-            }
-
-        })
+        mViewModel.sessions.observe(this, Observer<MutableList<Session>> { t -> adapter.replaceData(t) })
 
         ivPlay.setOnClickListener {
             val intent = Intent(this, MapsActivity::class.java)

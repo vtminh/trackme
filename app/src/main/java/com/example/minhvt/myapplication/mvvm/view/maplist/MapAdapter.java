@@ -21,6 +21,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +73,7 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder implements OnMapReadyCallback {
 
         MapView mapView;
-        TextView tvDistance;
+        TextView tvDistance, tvSpeed;
         GoogleMap map;
         View layout;
 
@@ -82,6 +84,8 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             layout = itemView;
             mapView = layout.findViewById(R.id.lite_listrow_map);
             tvDistance = layout.findViewById(R.id.tvDistance);
+            tvSpeed = layout.findViewById(R.id.tvSpeed);
+
             if (mapView != null) {
                 // Initialise the MapView
                 mapView.onCreate(null);
@@ -132,6 +136,15 @@ class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             // Store a reference to the item in the mapView's tag. We use it to get the
             // coordinate of a location, when setting the map location.
             setSession(item);
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            df.setRoundingMode(RoundingMode.CEILING);
+
+
+            tvDistance.setText(df.format(item.mDistance/1000) + " km");
+
+            double speed = (item.mDistance/ 1000) /  ((double) item.mTime/(1000*60*60));
+            tvSpeed.setText(df.format(speed) + " km/h");
             //title.setText(item.name);
         }
     }

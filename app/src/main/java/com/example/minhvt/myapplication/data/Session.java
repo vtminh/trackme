@@ -16,17 +16,17 @@ public class Session {
     @PrimaryKey(autoGenerate = true)
     public long mId;
     public Date mDate;
-    public float mDistance;
-    public float mSpeed;
+    public double mDistance; //unit: meter
+    public long mTime; //unit: millisecond
 
     @TypeConverters(RouteConverter.class)
     public List<LatLng> mRoute;
-    public Session(long id, float distance, float speed, Date date, List<LatLng> route){
+    public Session(long id, double distance, long time,  Date date, List<LatLng> route){
         this.mId = id;
         this.mDistance = distance;
-        this.mSpeed = speed;
         this.mDate = date;
         this.mRoute = route;
+        this.mTime = time;
     }
 
     void test(){

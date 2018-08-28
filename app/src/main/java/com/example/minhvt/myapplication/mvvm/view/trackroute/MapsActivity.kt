@@ -17,6 +17,8 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Toast
 
 import com.example.minhvt.myapplication.R
@@ -56,6 +58,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var polygon: MutableList<LatLng> = ArrayList()
     internal lateinit var mViewModel: MapsActivityViewModel
 
+    var startTime: Long = 0
+    var elapseTime: Long = 0
+
+    val TAG = "MapsActivity"
+
     internal var mLocationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             val locationList = locationResult.locations
@@ -77,10 +84,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
                 mCurrLocationMarker = mGoogleMap.addMarker(markerOptions)
 
-                updatePolygon(location.latitude, location.longitude)
 
+                var zoom = 20f
                 //move map camera
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20f))
+                if (polygon.size > 0) { //not first time
+                    zoom = mGoogleMap.cameraPosition.zoom
+                }
+
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+
+
+                tvSpeed.setText(location.speed.toString() + " m/s")
+
+                updatePolygon(location.latitude, location.longitude)
 
             }
         }
@@ -99,29 +115,61 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             initViewModel()
 
-            ivPause.setOnClickListener(object : View.OnClickListener{
-                override fun onClick(p0: View?) {
+            ivPause.setOnClickListener {
+                secondLayout.visibility = VISIBLE
+                ivPause.visibility = GONE
 
-                    val route = ArrayList<LatLng>()
+                //stop location updates when Activity is no longer active
+                mFusedLocationClient?.removeLocationUpdates(mLocationCallback)
 
-                    for(i in polygon) {
-                        route.add(LatLng(i.latitude, i.longitude))
-                    }
+                elapseTime += System.currentTimeMillis() - startTime
+
+                Log.i(TAG, (elapseTime / 1000).toString())
 
 
-                    mViewModel.insertForTest(Session(System.currentTimeMillis(), 2f, 3f, Date(), route))
-                    //stop location updates when Activity is no longer active
-                    if (mFusedLocationClient != null) {
-                        mFusedLocationClient!!.removeLocationUpdates(mLocationCallback)
-                    }
+            }
 
+
+            ivResume.setOnClickListener {
+                requestLocation()
+                secondLayout.visibility = GONE
+                ivPause.visibility = VISIBLE
+
+                startTime = System.currentTimeMillis()
+            }
+
+            ivStop.setOnClickListener {
+                val route = ArrayList<LatLng>()
+
+                var distance = 0.0
+
+                for (i in 0..polygon.size) {
+                    route.add(LatLng(polygon.get(i).latitude, polygon.get(i).longitude))
+
+                    if (i == polygon.size - 1)
+                        break;
+                    val results = FloatArray(1)
+                    Location.distanceBetween(polygon.get(i).latitude, polygon.get(i).longitude,
+                            polygon.get(i + 1).latitude, polygon.get(i + 1).longitude, results)
+
+                    distance += results.get(0)
                 }
 
-            })
+                Toast.makeText(this, elapseTime.toString(), Toast.LENGTH_SHORT).show()
+
+
+                mViewModel.insertForTest(Session(System.currentTimeMillis(), distance, elapseTime, Date(), route))
+                //stop location updates when Activity is no longer active
+                if (mFusedLocationClient != null) {
+                    mFusedLocationClient!!.removeLocationUpdates(mLocationCallback)
+                }
+
+                finish()
+            }
         }
     }
 
-    private fun initViewModel(){
+    private fun initViewModel() {
         val factory = InjectorUtils.provideMapsActivityViewModelFactory(this)
         mViewModel = ViewModelProviders.of(this, factory).get(MapsActivityViewModel::class.java);
     }
@@ -144,12 +192,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mLocationRequest.fastestInterval = INTERVAL.toLong()
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
 
+        requestLocation()
+    }
+
+
+    private fun requestLocation() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
                 mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
                 mGoogleMap.isMyLocationEnabled = true
+                startTime = System.currentTimeMillis()
             } else {
                 //Request Location Permission
                 checkLocationPermission()
@@ -157,8 +211,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         } else {
             mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
             mGoogleMap.isMyLocationEnabled = true
+            startTime = System.currentTimeMillis()
+
         }
     }
+
 
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -195,7 +252,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun updatePolygon(latitude: Double, longitude: Double) {
         polygon.add(LatLng(latitude, longitude))
         mGoogleMap.addPolygon(PolygonOptions()
-                .addAll(polygon)
+                .addAll(Arrays.asList(LatLng(latitude, longitude)))
                 .strokeColor(Color.YELLOW)
                 .strokeWidth(10f)
                 .fillColor(Color.YELLOW)
